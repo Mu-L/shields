@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Runner</title>
+    <title>JSDoc: Source: core/base-service/resource-cache.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,544 +17,85 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Runner</h1>
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-core_service-test-runner_runner.html">core/service-test-runner/runner</a>~</span>Runner<span class="signature">()</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description"><p>Load a collection of ServiceTester objects and register them with Mocha.</p></div>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-
-    
-    <h2>Constructor</h2>
-    
-
-    
-    <h4 class="name" id="Runner"><span class="type-signature"></span>new Runner<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_service-test-runner_runner.js.html">core/service-test-runner/runner.js</a>, <a href="core_service-test-runner_runner.js.html#line10">line 10</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="beforeEach"><span class="type-signature"></span>beforeEach<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Function to invoke before each test. This is a stub which can be
-overridden on instances.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_service-test-runner_runner.js.html">core/service-test-runner/runner.js</a>, <a href="core_service-test-runner_runner.js.html#line21">line 21</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="only"><span class="type-signature"></span>only<span class="signature">(services)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Limit the test run to the specified services.</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>services</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;string></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>An array of service id prefixes to run</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_service-test-runner_runner.js.html">core/service-test-runner/runner.js</a>, <a href="core_service-test-runner_runner.js.html#line46">line 46</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="prepare"><span class="type-signature">(async) </span>prepare<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Prepare the runner by loading up all the ServiceTester objects.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_service-test-runner_runner.js.html">core/service-test-runner/runner.js</a>, <a href="core_service-test-runner_runner.js.html#line26">line 26</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="toss"><span class="type-signature"></span>toss<span class="signature">()</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Register the tests with Mocha.</p>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="core_service-test-runner_runner.js.html">core/service-test-runner/runner.js</a>, <a href="core_service-test-runner_runner.js.html#line71">line 71</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <h1 class="page-title">Source: core/base-service/resource-cache.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @module
+ */
+
+import { InvalidResponse } from './errors.js'
+import { fetch } from './got.js'
+import checkErrorResponse from './check-error-response.js'
+
+const oneDay = 24 * 3600 * 1000 // 1 day in milliseconds
+
+// Map from URL to { timestamp: last fetch time, data: data }.
+let resourceCache = Object.create(null)
+
+/**
+ * Make a HTTP request using an in-memory cache
+ *
+ * @param {object} attrs Refer to individual attrs
+ * @param {string} attrs.url URL to request
+ * @param {number} attrs.ttl Number of milliseconds to keep cached value for
+ * @param {boolean} [attrs.json=true] True if we expect to parse the response as JSON
+ * @param {Function} [attrs.scraper=buffer => buffer] Function to extract value from the response
+ * @param {object} [attrs.options={}] Options to pass to got
+ * @param {Function} [attrs.requestFetcher=fetch] Custom fetch function
+ * @returns {*} Parsed response
+ */
+async function getCachedResource({
+  url,
+  ttl = oneDay,
+  json = true,
+  scraper = buffer => buffer,
+  options = {},
+  requestFetcher = fetch,
+}) {
+  const timestamp = Date.now()
+  const cached = resourceCache[url]
+  if (cached != null &amp;&amp; timestamp - cached.timestamp &lt; ttl) {
+    return cached.data
+  }
+
+  const { buffer } = await checkErrorResponse({})(
+    await requestFetcher(url, options)
+  )
+
+  let reqData
+  if (json) {
+    try {
+      reqData = JSON.parse(buffer)
+    } catch (e) {
+      throw new InvalidResponse({
+        prettyMessage: 'unparseable intermediate json response',
+        underlyingError: e,
+      })
+    }
+  } else {
+    reqData = buffer
+  }
+
+  const data = scraper(reqData)
+  resourceCache[url] = { timestamp, data }
+  return data
+}
+
+function clearResourceCache() {
+  resourceCache = Object.create(null)
+}
+
+export { getCachedResource, clearResourceCache }
+</code></pre>
+        </article>
+    </section>
 
 
 
