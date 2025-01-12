@@ -7,7 +7,7 @@ t.create('license (valid, package version in request)')
 
 t.create('license (valid, no package version specified)')
   .get('/requests.json')
-  .expectBadge({ label: 'license', message: 'Apache 2.0', color: 'green' })
+  .expectBadge({ label: 'license', message: 'Apache-2.0', color: 'green' })
 
 t.create('license (invalid)')
   .get('/not-a-package.json')
@@ -24,8 +24,8 @@ t.create('license (from trove classifier)')
           license: '',
           classifiers: ['License :: OSI Approved :: MIT License'],
         },
-        releases: {},
-      })
+        urls: [],
+      }),
   )
   .expectBadge({
     label: 'license',
@@ -46,8 +46,8 @@ t.create('license (as acronym from trove classifier)')
             'License :: OSI Approved :: GNU General Public License (GPL)',
           ],
         },
-        releases: {},
-      })
+        urls: [],
+      }),
   )
   .expectBadge({
     label: 'license',

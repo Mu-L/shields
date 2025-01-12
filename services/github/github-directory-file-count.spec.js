@@ -5,12 +5,12 @@ import GithubDirectoryFileCount from './github-directory-file-count.service.js'
 
 describe('GithubDirectoryFileCount', function () {
   const contents = [
-    { path: 'a', type: 'dir' },
-    { path: 'b', type: 'dir' },
-    { path: 'c.js', type: 'file' },
-    { path: 'd.js', type: 'file' },
-    { path: 'e.txt', type: 'file' },
-    { path: 'f', type: 'submodule' },
+    { extension: '', type: 'tree' },
+    { extension: '', type: 'tree' },
+    { extension: '.js', type: 'blob' },
+    { extension: '.js', type: 'blob' },
+    { extension: '.txt', type: 'blob' },
+    { extension: '', type: 'commit' },
   ]
 
   test(GithubDirectoryFileCount.transform, () => {
@@ -32,34 +32,34 @@ describe('GithubDirectoryFileCount', function () {
     })
   })
 
-  it('throws InvalidParameter on receving an object as contents instead of an array', function () {
+  it('throws InvalidParameter on receiving an object as contents instead of an array', function () {
     expect(() => GithubDirectoryFileCount.transform({}, {}))
       .to.throw(InvalidParameter)
       .with.property('prettyMessage', 'not a directory')
   })
 
-  it('throws InvalidParameter on receving type dir and extension', function () {
+  it('throws InvalidParameter on receiving type dir and extension', function () {
     expect(() =>
       GithubDirectoryFileCount.transform(contents, {
         type: 'dir',
         extension: 'js',
-      })
+      }),
     )
       .to.throw(InvalidParameter)
       .with.property(
         'prettyMessage',
-        'extension is applicable for type file only'
+        'extension is applicable for type file only',
       )
   })
 
-  it('throws InvalidParameter on receving no type and extension', function () {
+  it('throws InvalidParameter on receiving no type and extension', function () {
     expect(() =>
-      GithubDirectoryFileCount.transform(contents, { extension: 'js' })
+      GithubDirectoryFileCount.transform(contents, { extension: 'js' }),
     )
       .to.throw(InvalidParameter)
       .with.property(
         'prettyMessage',
-        'extension is applicable for type file only'
+        'extension is applicable for type file only',
       )
   })
 })

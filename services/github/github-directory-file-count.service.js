@@ -1,49 +1,40 @@
-import path from 'path'
 import Joi from 'joi'
+import gql from 'graphql-tag'
 import { metric } from '../text-formatters.js'
-import { InvalidParameter } from '../index.js'
-import { ConditionalGithubAuthV3Service } from './github-auth-service.js'
-import {
-  documentation as commonDocumentation,
-  errorMessagesFor,
-} from './github-helpers.js'
+import { InvalidParameter, pathParam, queryParam } from '../index.js'
+import { GithubAuthV4Service } from './github-auth-service.js'
+import { documentation, transformErrors } from './github-helpers.js'
 
-const documentation = `${commonDocumentation}
-<p>
-  <b>Note:</b><br>
-  1. Parameter <code>type</code> accepts either <code>file</code> or <code>dir</code> value. Passing any other value will result in an error.<br>
-  2. Parameter <code>extension</code> accepts file extension without a leading dot.
-     For instance for <code>.js</code> extension pass <code>js</code>.
-     Only single <code>extension</code> value can be specified.
-     <code>extension</code> is applicable for <code>type</code> <code>file</code> only.
-     Passing it either without <code>type</code> or along with <code>type</code> <code>dir</code> will result in an error.<br>
-  3. GitHub API has an upper limit of 1,000 files for a directory.
-     In case a directory contains files above the limit, a badge might present inaccurate information.<br>
-</p>
-`
-
-const schema = Joi.alternatives(
-  /*
-   alternative empty object schema to provide a custom error message
-   in the event a file path is provided by the user instead of a directory
-  */
-  Joi.object({}).required(),
-  Joi.array()
-    .items(
-      Joi.object({
-        path: Joi.string().required(),
-        type: Joi.string().required(),
+const schema = Joi.object({
+  data: Joi.object({
+    repository: Joi.object({
+      object: Joi.object({
+        entries: Joi.array().items(
+          Joi.object({
+            type: Joi.string().required(),
+            extension: Joi.string().allow('').required(),
+          }),
+        ),
       })
-    )
-    .required()
-)
+        .allow(null)
+        .required(),
+    }).required(),
+  }).required(),
+}).required()
+
+const typeEnum = ['dir', 'file']
 
 const queryParamSchema = Joi.object({
-  type: Joi.any().valid('dir', 'file'),
+  type: Joi.any().valid(...typeEnum),
   extension: Joi.string(),
 })
 
-export default class GithubDirectoryFileCount extends ConditionalGithubAuthV3Service {
+const typeDocs =
+  'Entity to count: directories or files. If not specified, both files and directories are counted. GitHub API has an upper limit of 1,000 files for a directory. If a directory contains files above the limit, the badge will show an inaccurate count.'
+const extensionDocs =
+  'Filter to files of type. Specify the extension without a leading dot. For instance for `.js` extension pass `js`. This param is only applicable if type is `file`'
+
+export default class GithubDirectoryFileCount extends GithubAuthV4Service {
   static category = 'size'
 
   static route = {
@@ -52,62 +43,51 @@ export default class GithubDirectoryFileCount extends ConditionalGithubAuthV3Ser
     queryParamSchema,
   }
 
-  static examples = [
-    {
-      title: 'GitHub repo file count',
-      pattern: ':user/:repo',
-      namedParams: { user: 'badges', repo: 'shields' },
-      staticPreview: this.render({ count: 20 }),
-      documentation,
+  static openApi = {
+    '/github/directory-file-count/{user}/{repo}': {
+      get: {
+        summary: 'GitHub repo file or directory count',
+        description: documentation,
+        parameters: [
+          pathParam({ name: 'user', example: 'badges' }),
+          pathParam({ name: 'repo', example: 'shields' }),
+          queryParam({
+            name: 'type',
+            example: 'file',
+            schema: { type: 'string', enum: typeEnum },
+            description: typeDocs,
+          }),
+          queryParam({
+            name: 'extension',
+            example: 'js',
+            description: extensionDocs,
+          }),
+        ],
+      },
     },
-    {
-      title: 'GitHub repo file count (custom path)',
-      pattern: ':user/:repo/:path',
-      namedParams: { user: 'badges', repo: 'shields', path: 'services' },
-      staticPreview: this.render({ count: 10 }),
-      documentation,
+    '/github/directory-file-count/{user}/{repo}/{path}': {
+      get: {
+        summary: 'GitHub repo file or directory count (in path)',
+        description: documentation,
+        parameters: [
+          pathParam({ name: 'user', example: 'badges' }),
+          pathParam({ name: 'repo', example: 'shields' }),
+          pathParam({ name: 'path', example: 'services' }),
+          queryParam({
+            name: 'type',
+            example: 'file',
+            schema: { type: 'string', enum: typeEnum },
+            description: typeDocs,
+          }),
+          queryParam({
+            name: 'extension',
+            example: 'js',
+            description: extensionDocs,
+          }),
+        ],
+      },
     },
-    {
-      title: 'GitHub repo directory count',
-      pattern: ':user/:repo',
-      namedParams: { user: 'badges', repo: 'shields' },
-      queryParams: { type: 'dir' },
-      staticPreview: this.render({ count: 8 }),
-      documentation,
-    },
-    {
-      title: 'GitHub repo directory count (custom path)',
-      pattern: ':user/:repo/:path',
-      namedParams: { user: 'badges', repo: 'shields', path: 'services' },
-      queryParams: { type: 'dir' },
-      staticPreview: this.render({ count: 8 }),
-      documentation,
-    },
-    {
-      title: 'GitHub repo file count (file type)',
-      pattern: ':user/:repo',
-      namedParams: { user: 'badges', repo: 'shields' },
-      queryParams: { type: 'file' },
-      staticPreview: this.render({ count: 2 }),
-      documentation,
-    },
-    {
-      title: 'GitHub repo file count (custom path & file type)',
-      pattern: ':user/:repo/:path',
-      namedParams: { user: 'badges', repo: 'shields', path: 'services' },
-      queryParams: { type: 'file' },
-      staticPreview: this.render({ count: 2 }),
-      documentation,
-    },
-    {
-      title: 'GitHub repo file count (file extension)',
-      pattern: ':user/:repo/:path',
-      namedParams: { user: 'badges', repo: 'shields', path: 'services' },
-      queryParams: { extension: 'js' },
-      staticPreview: this.render({ count: 1 }),
-      documentation,
-    },
-  ]
+  }
 
   static defaultBadgeData = { color: 'blue', label: 'files' }
 
@@ -118,10 +98,25 @@ export default class GithubDirectoryFileCount extends ConditionalGithubAuthV3Ser
   }
 
   async fetch({ user, repo, path = '' }) {
-    return this._requestJson({
-      url: `/repos/${user}/${repo}/contents/${path}`,
+    const expression = `HEAD:${path}`
+    return this._requestGraphql({
+      query: gql`
+        query RepoFiles($user: String!, $repo: String!, $expression: String!) {
+          repository(owner: $user, name: $repo) {
+            object(expression: $expression) {
+              ... on Tree {
+                entries {
+                  type
+                  extension
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: { user, repo, expression },
       schema,
-      errorMessages: errorMessagesFor('repo or directory not found'),
+      transformErrors,
     })
   }
 
@@ -137,11 +132,12 @@ export default class GithubDirectoryFileCount extends ConditionalGithubAuthV3Ser
     }
 
     if (type) {
-      files = files.filter(file => file.type === type)
+      const objectType = type === 'dir' ? 'tree' : 'blob'
+      files = files.filter(file => file.type === objectType)
     }
 
     if (extension) {
-      files = files.filter(file => path.extname(file.path) === `.${extension}`)
+      files = files.filter(file => file.extension === `.${extension}`)
     }
 
     return {
@@ -150,7 +146,13 @@ export default class GithubDirectoryFileCount extends ConditionalGithubAuthV3Ser
   }
 
   async handle({ user, repo, path }, { type, extension }) {
-    const content = await this.fetch({ user, repo, path })
+    const json = await this.fetch({ user, repo, path })
+    if (json.data.repository.object === null) {
+      throw new InvalidParameter({
+        prettyMessage: 'directory not found',
+      })
+    }
+    const content = json.data.repository.object.entries
     const { count } = this.constructor.transform(content, { type, extension })
     return this.constructor.render({ count })
   }

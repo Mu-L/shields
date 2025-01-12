@@ -1,4 +1,5 @@
 import Joi from 'joi'
+import { queryParams } from '../index.js'
 import { colorScale } from '../color-formatters.js'
 import { optionalUrl } from '../validators.js'
 
@@ -12,12 +13,12 @@ const ratingScaleColors = [
 ]
 const negativeMetricColorScale = colorScale(
   ratingPercentageScaleSteps,
-  ratingScaleColors
+  ratingScaleColors,
 )
 const positiveMetricColorScale = colorScale(
   ratingPercentageScaleSteps,
   ratingScaleColors,
-  true
+  true,
 )
 
 function isLegacyVersion({ sonarVersion }) {
@@ -32,7 +33,7 @@ const sonarVersionSchema = Joi.alternatives(
   Joi.string()
     .regex(/[0-9.]+/)
     .optional(),
-  Joi.number().optional()
+  Joi.number().optional(),
 )
 
 const queryParamSchema = Joi.object({
@@ -40,31 +41,32 @@ const queryParamSchema = Joi.object({
   server: optionalUrl.required(),
 }).required()
 
+const openApiQueryParams = queryParams(
+  { name: 'server', example: 'https://sonarcloud.io', required: true },
+  { name: 'sonarVersion', example: '4.2' },
+)
+
 const queryParamWithFormatSchema = Joi.object({
   sonarVersion: sonarVersionSchema,
   server: optionalUrl.required(),
   format: Joi.string().allow('short', 'long').optional(),
 }).required()
 
-const keywords = ['sonarcloud', 'sonarqube']
 const documentation = `
-  <p>
-    The Sonar badges will work with both SonarCloud.io and self-hosted SonarQube instances.
-    Just enter the correct protocol and path for your target Sonar deployment.
-  </p>
-  <p>
-    If you are targeting a legacy SonarQube instance that is version 5.3 or earlier, then be sure
-    to include the version query parameter with the value of your SonarQube version.
-  </p
+The Sonar badges will work with both SonarCloud.io and self-hosted SonarQube instances.
+Just enter the correct protocol and path for your target Sonar deployment.
+
+If you are targeting a legacy SonarQube instance that is version 5.3 or earlier, then be sure
+to include the version query parameter with the value of your SonarQube version.
 `
 
 export {
   getLabel,
   isLegacyVersion,
   queryParamSchema,
+  openApiQueryParams,
   queryParamWithFormatSchema,
   negativeMetricColorScale,
   positiveMetricColorScale,
-  keywords,
   documentation,
 }

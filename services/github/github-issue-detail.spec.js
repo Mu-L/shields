@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { test, given } from 'sazerac'
-import { age } from '../color-formatters.js'
-import { formatDate, metric } from '../text-formatters.js'
+import { age, formatDate } from '../date.js'
+import { metric } from '../text-formatters.js'
 import { InvalidResponse } from '../index.js'
 import GithubIssueDetail from './github-issue-detail.service.js'
 import { issueStateColor, commentsColor } from './github-helpers.js'
@@ -89,6 +89,14 @@ describe('GithubIssueDetail', function () {
       label: 'updated',
       message: formatDate('2019-04-02T20:09:31Z'),
       color: age('2019-04-02T20:09:31Z'),
+    })
+    given({
+      property: 'milestone',
+      value: 'MS 1',
+    }).expect({
+      label: 'milestone',
+      message: 'MS 1',
+      color: 'informational',
     })
   })
 
@@ -178,6 +186,13 @@ describe('GithubIssueDetail', function () {
       value: '2019-04-02T20:09:31Z',
       isPR: false,
     })
+    given({
+      property: 'milestone',
+      json: { milestone: { title: 'MS 1' } },
+    }).expect({
+      value: 'MS 1',
+      isPR: false,
+    })
   })
 
   context('transform()', function () {
@@ -191,6 +206,21 @@ describe('GithubIssueDetail', function () {
       } catch (e) {
         expect(e).to.be.an.instanceof(InvalidResponse)
         expect(e.prettyMessage).to.equal('no labels found')
+      }
+    })
+  })
+
+  context('transform()', function () {
+    it('throws InvalidResponse error when issue has no milestone', function () {
+      try {
+        GithubIssueDetail.prototype.transform({
+          property: 'milestone',
+          json: { milestone: null },
+        })
+        expect.fail('Expected to throw')
+      } catch (e) {
+        expect(e).to.be.an.instanceof(InvalidResponse)
+        expect(e.prettyMessage).to.equal('no milestone')
       }
     })
   })

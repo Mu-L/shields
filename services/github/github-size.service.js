@@ -1,15 +1,19 @@
 import Joi from 'joi'
-import prettyBytes from 'pretty-bytes'
+import { renderSizeBadge } from '../size.js'
 import { nonNegativeInteger } from '../validators.js'
-import { NotFound } from '../index.js'
+import { NotFound, pathParam, queryParam } from '../index.js'
 import { GithubAuthV3Service } from './github-auth-service.js'
-import { documentation, errorMessagesFor } from './github-helpers.js'
+import { documentation, httpErrorsFor } from './github-helpers.js'
+
+const queryParamSchema = Joi.object({
+  branch: Joi.string(),
+}).required()
 
 const schema = Joi.alternatives(
   Joi.object({
     size: nonNegativeInteger,
   }).required(),
-  Joi.array().required()
+  Joi.array().required(),
 )
 
 export default class GithubSize extends GithubAuthV3Service {
@@ -17,43 +21,51 @@ export default class GithubSize extends GithubAuthV3Service {
 
   static route = {
     base: 'github/size',
-    pattern: ':user/:repo/:path*',
+    pattern: ':user/:repo/:path+',
+    queryParamSchema,
   }
 
-  static examples = [
-    {
-      title: 'GitHub file size in bytes',
-      namedParams: {
-        user: 'webcaetano',
-        repo: 'craft',
-        path: 'build/phaser-craft.min.js',
+  static openApi = {
+    '/github/size/{user}/{repo}/{path}': {
+      get: {
+        summary: 'GitHub file size in bytes',
+        description: documentation,
+        parameters: [
+          pathParam({ name: 'user', example: 'webcaetano' }),
+          pathParam({ name: 'repo', example: 'craft' }),
+          pathParam({ name: 'path', example: 'build/phaser-craft.min.js' }),
+          queryParam({
+            name: 'branch',
+            example: 'master',
+            description: 'Can be a branch, a tag or a commit hash.',
+          }),
+        ],
       },
-      staticPreview: this.render({ size: 9170 }),
-      keywords: ['repo'],
-      documentation,
     },
-  ]
+  }
 
-  static render({ size }) {
-    return {
-      message: prettyBytes(size),
-      color: 'blue',
+  async fetch({ user, repo, path, branch }) {
+    if (branch) {
+      return this._requestJson({
+        url: `/repos/${user}/${repo}/contents/${path}?ref=${branch}`,
+        schema,
+        httpErrors: httpErrorsFor('repo, branch or file not found'),
+      })
+    } else {
+      return this._requestJson({
+        url: `/repos/${user}/${repo}/contents/${path}`,
+        schema,
+        httpErrors: httpErrorsFor('repo or file not found'),
+      })
     }
   }
 
-  async fetch({ user, repo, path }) {
-    return this._requestJson({
-      url: `/repos/${user}/${repo}/contents/${path}`,
-      schema,
-      errorMessages: errorMessagesFor('repo or file not found'),
-    })
-  }
-
-  async handle({ user, repo, path }) {
-    const body = await this.fetch({ user, repo, path })
+  async handle({ user, repo, path }, queryParams) {
+    const branch = queryParams.branch
+    const body = await this.fetch({ user, repo, path, branch })
     if (Array.isArray(body)) {
       throw new NotFound({ prettyMessage: 'not a regular file' })
     }
-    return this.constructor.render({ size: body.size })
+    return renderSizeBadge(body.size, 'iec')
   }
 }
